@@ -1,0 +1,11 @@
+version: "2"
+sql:
+  - engine: "mysql"
+    schema: "../db/migrations/mysql"
+    queries: "../db/queries/mysql"
+    gen:
+      go:
+        package: "mysql"
+        out: "../gen/sqlc/mysql"
+        sql_package: "database/sql"
+        emit_json_tags: true
