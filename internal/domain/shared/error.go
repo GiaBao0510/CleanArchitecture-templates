@@ -12,4 +12,5 @@ var (
 	ErrResourceInUse      = errors.New("resource is in use")
 	ErrDBConflict         = errors.New("database conflict, please retry")
 	ErrDBUnavailable      = errors.New("database unavailable")
+	ErrInvalidID          = errors.New("Invalid ID")
 )

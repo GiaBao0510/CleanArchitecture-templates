@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	domain "github.com/GiaBao0510/CleanArchitecture-templates/internal/domain/user"
 	usecase "github.com/GiaBao0510/CleanArchitecture-templates/internal/usecase/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -93,7 +94,16 @@ func (h *Handler) Create(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	out, err := h.service.Create(r.Context(), req.Input())
+	userReq, err := domain.NewUser(
+		req.Input().Name,
+		req.Input().Email,
+	)
+	if err != nil {
+		writeError(w, err)
+		return
+	} 
+
+	out, err := h.service.Create(r.Context(), userReq)
 	if err != nil {
 		writeError(w, err)
 		return
