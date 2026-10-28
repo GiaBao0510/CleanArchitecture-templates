@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	domain "github.com/GiaBao0510/CleanArchitecture-templates/internal/domain/user"
+	apperror "github.com/GiaBao0510/CleanArchitecture-templates/internal/usecase/shared/apperror"
 )
 
 func (s *Service) Create(ctx context.Context, user *domain.User) ( UserResponse, error) {
@@ -19,7 +20,7 @@ func (s *Service) Create(ctx context.Context, user *domain.User) ( UserResponse,
 		return UserResponse{}, err
 	}
 	if existingUser != nil {
-		return UserResponse{}, domain.ErrEmailIsAlreadyUsed
+		return UserResponse{}, apperror.New(apperror.Conflict, "Email đã tồn tại", err)
 	}
 
 	// Thực hiện thêm

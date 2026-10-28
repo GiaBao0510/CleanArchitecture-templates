@@ -6,6 +6,7 @@ import (
 	pb "github.com/GiaBao0510/CleanArchitecture-templates/gen/proto/user/v1"
 	domain "github.com/GiaBao0510/CleanArchitecture-templates/internal/domain/user"
 	uc "github.com/GiaBao0510/CleanArchitecture-templates/internal/usecase/user"
+	grpcerrors "github.com/GiaBao0510/CleanArchitecture-templates/internal/adapter/delivery/grpc/errors"
 	"github.com/google/uuid"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -31,6 +32,16 @@ func toProto(u uc.UserResponse) *pb.UserResponse {
 	}
 }
 
+func domainToProto_User(u *domain.User) *pb.UserResponse{
+	return &pb.UserResponse{
+		Id: u.ID.String(),
+		Name: u.Name,
+		Email: u.Email,
+		CreatedAt:timestamppb.New(u.CreatedAt),
+		UpdatedAt: timestamppb.New(u.UpdatedAt),
+	}
+}
+
 // CreateUser implements user.UserServiceServer.
 func(s *Server) CreateUser(
 	ctx context.Context,
@@ -42,7 +53,7 @@ func(s *Server) CreateUser(
 	})
 
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	return toProto(out), nil
@@ -55,12 +66,12 @@ func(s *Server) GetUser(
 ) (*pb.UserResponse, error) {
 	id , err := uuid.Parse(req.GetId())
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	out, err := s.service.Get(ctx, id)
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	return toProto(out), nil
@@ -77,7 +88,7 @@ func(s *Server) ListUser(
 	})
 
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	result := &pb.ListUserResponse{
@@ -85,7 +96,7 @@ func(s *Server) ListUser(
 	}
 
 	for _, u := range out {
-		result.Users = append(result.Users, toProto(u))
+		result.Users = append(result.Users, domainToProto_User(u))
 	}
 
 	return result, nil
@@ -98,7 +109,7 @@ func(s *Server) UpdateUser(
 ) (*pb.UserResponse, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	out, err := s.service.Update(ctx, uc.UpdateUserRequest{
@@ -107,7 +118,7 @@ func(s *Server) UpdateUser(
 		Email: req.GetEmail(),
 	})
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	return toProto(out), nil
@@ -119,11 +130,11 @@ func(s *Server) DeleteUser(
 ) (*pb.DeleteUserResponse, error) {
 	id, err := uuid.Parse(req.GetId())
 	if err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 
 	if err := s.service.Delete(ctx, id); err != nil {
-		return nil, mapError(err)
+		return nil, grpcerrors.Map(err)
 	}
 	return &pb.DeleteUserResponse{}, nil
 }

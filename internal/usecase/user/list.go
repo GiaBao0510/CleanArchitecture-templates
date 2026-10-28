@@ -2,9 +2,14 @@ package user
 
 import (
 	"context"
+
+	domain "github.com/GiaBao0510/CleanArchitecture-templates/internal/domain/user"
 )
 
-func(s *Service) List(ctx context.Context, res ListUserRequest) ([]UserResponse, error) {
+func(s *Service) List(
+	ctx context.Context, 
+	res ListUserRequest,
+) ([]*domain.User, error) {
 
 	// Check limit and offset
 	if res.Limit <= 0 {
@@ -17,14 +22,5 @@ func(s *Service) List(ctx context.Context, res ListUserRequest) ([]UserResponse,
 		res.Offset = 0
 	}
 
-	users, err := s.repo.List(ctx, res.Limit, res.Offset)
-	if err != nil {
-		return nil, err
-	}
-
-	result := make([]UserResponse, 0, len(users))
-	for _, u := range users {
-		result = append(result, toOutput(u))
-	}
-	return result, nil
+	return s.repo.List(ctx, res.Limit, res.Offset)
 }
