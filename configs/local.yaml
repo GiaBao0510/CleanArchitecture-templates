@@ -1,0 +1,107 @@
+app:
+  name: go-clean-architecture-template
+  version: 0.1.0
+  environment: local
+  debug: true
+  shutdown_timeout: 20s
+
+http:
+  address: ":8080"
+  read_timeout: 10s
+  read_header_timeout: 5s
+  write_timeout: 10s
+  idle_timeout: 60s
+  max_header_bytes: 1048576
+  max_body_bytes: 4194304
+  enable_swagger: true
+
+cors:
+  allowed_origins: ["http://localhost:3000"]
+  allowed_methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+  allowed_headers: ["Content-Type", "Authorization"]
+  exposed_headers: []
+  allow_credentials: true
+  max_age: 3600
+
+grpc:
+  address: ":50051"
+  timeout: 10s
+  max_recv_msg_size: 4194304
+  max_send_msg_size: 4194304
+  keepalive_time: 2h
+  keepalive_timeout: 20s
+  enable_reflection: true
+
+database:
+  driver: postgres
+  # DSN dev cục bộ; môi trường khác phải ghi đè bằng biến DB_DSN
+  dsn: postgres://app:app_password@localhost:5432/appdb?sslmode=disable
+  max_open_conns: 20
+  max_idle_conns: 5
+  conn_max_lifetime: 30m
+  conn_max_idle_time: 5m
+  connect_timeout: 5s
+  query_timeout: 10s
+  log_queries: true
+  migration:
+    enabled: true
+    dir: ./migrations
+
+redis:
+  address: localhost:6379
+  username: ""
+  password: ""          # ghi đè bằng REDIS_PASSWORD
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  cache_ttl: 5m
+  key_prefix: "app:"
+
+kafka:
+  brokers:
+    - localhost:9092
+    - localhost:9093
+  client_id: go-clean-architecture-template
+  user_topic: user.events
+  dlq_topic: user.events.dlq
+  worker_group_id: user-worker-group
+  producer:
+    required_acks: -1
+    max_retries: 3
+    compression: none
+    batch_size: 100
+    batch_timeout: 10ms
+    write_timeout: 10s
+  consumer:
+    auto_offset_reset: latest
+    session_timeout: 10s
+    heartbeat_interval: 3s
+    max_poll_records: 500
+    commit_interval: 1s
+    max_retries: 3
+
+log:
+  level: debug
+  format: text
+  output: stdout
+
+auth:
+  jwt_secret: ""        # local có thể để trống; staging/production bắt buộc đặt JWT_SECRET
+  issuer: go-clean-architecture-template
+  access_token_ttl: 15m
+  refresh_token_ttl: 168h
+
+rate_limit:
+  enabled: false
+  requests_per_second: 100
+  burst: 200
+
+telemetry:
+  metrics_enabled: true
+  metrics_path: /metrics
+  tracing_enabled: false
+  otlp_endpoint: localhost:4317
+  sample_rate: 1.0
